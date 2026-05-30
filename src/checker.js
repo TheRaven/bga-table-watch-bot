@@ -1,4 +1,4 @@
-import { NUMBER_EMOJIS, LOCK_EMOJI, LOADING_EMOJI, MAX_FAIL_COUNT } from './config.js';
+import { NUMBER_EMOJIS, LOCK_EMOJI, MAX_FAIL_COUNT } from './config.js';
 import { getTablesByMessageId, getActiveTables, deleteTable, incrementFailCount, resetFailCount, getFailCount, countByMessageId, deleteByMessageId } from './db.js';
 import { fetchTableInfo, getSeatsInfo } from './bga.js';
 
@@ -28,8 +28,6 @@ export async function checkTablesForMessage(message, botUserId) {
   const rows = getTablesByMessageId.all(message.id);
 
   if (rows.length === 0) return;
-
-  await setReaction(message, LOADING_EMOJI);
 
   let seatsLeft = null;
   const toRemove = [];
