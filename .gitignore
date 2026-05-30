@@ -1,0 +1,3 @@
+node_modules/
+bga_tables.db
+.env
