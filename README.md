@@ -9,7 +9,6 @@ A Discord bot that monitors Board Game Arena table links and shows seat availabi
 3. The bot periodically checks each table's availability and reacts to the message:
    - 1️⃣–9️⃣ — number of seats remaining
    - 🔒 — table is full or the game has started
-   - ⏳ — currently checking
 
 Full tables are automatically removed from tracking. Unreachable tables are removed after a configurable number of failed attempts.
 
