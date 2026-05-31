@@ -1,3 +1,4 @@
+import { createServer } from 'node:http';
 import { Client, GatewayIntentBits, Partials, REST, Routes, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { DISCORD_TOKEN, CHECK_INTERVAL, BGA_LINK_RE } from './src/config.js';
 import { setWatchedChannel, getWatchedChannel, removeWatchedChannel, insertTable } from './src/db.js';
@@ -109,6 +110,22 @@ client.on('messageCreate', async (message) => {
   }
 
   await checkTablesForMessage(message, client.user.id);
+});
+
+// --- Health check server ---
+
+const PORT = process.env.PORT || 80;
+
+createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+}).listen(PORT, () => {
+  console.log(`Health check listening on port ${PORT}`);
 });
 
 client.login(DISCORD_TOKEN);
