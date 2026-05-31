@@ -1,4 +1,4 @@
-import { NUMBER_EMOJIS, LOCK_EMOJI, MAX_FAIL_COUNT } from './config.js';
+import { NUMBER_EMOJIS, LOCK_EMOJI, CLOSED_EMOJI, MAX_FAIL_COUNT } from './config.js';
 import { getTablesByMessageId, getActiveTables, deleteTable, incrementFailCount, resetFailCount, getFailCount, countByMessageId, deleteByMessageId } from './db.js';
 import { fetchTableInfo, getSeatsInfo } from './bga.js';
 
@@ -30,6 +30,7 @@ export async function checkTablesForMessage(message, botUserId) {
   if (rows.length === 0) return;
 
   let seatsLeft = null;
+  let removalReason = null; // 'full', 'started', or 'error'
   const toRemove = [];
 
   for (const row of rows) {
@@ -37,9 +38,14 @@ export async function checkTablesForMessage(message, botUserId) {
       const tableData = await fetchTableInfo(row.table_id);
       const info = getSeatsInfo(tableData);
 
-      if (info.isFull) {
+      if (info.hasStarted) {
+        console.log(`Table ${row.table_id}: STARTED, removing`);
+        toRemove.push(row.id);
+        removalReason = 'started';
+      } else if (info.isFull) {
         console.log(`Table ${row.table_id}: FULL, removing`);
         toRemove.push(row.id);
+        removalReason = 'full';
       } else {
         resetFailCount.run(row.id);
         seatsLeft = info.seatsLeft;
@@ -52,6 +58,7 @@ export async function checkTablesForMessage(message, botUserId) {
       if (updated.fail_count >= MAX_FAIL_COUNT) {
         console.log(`Table ${row.table_id}: unreachable for ${updated.fail_count} checks, removing`);
         toRemove.push(row.id);
+        removalReason = 'error';
       }
     }
   }
@@ -65,7 +72,11 @@ export async function checkTablesForMessage(message, botUserId) {
   await clearBotReactions(message, botUserId);
 
   if (remaining.count === 0) {
-    await setReaction(message, LOCK_EMOJI);
+    if (removalReason === 'error') {
+      await setReaction(message, CLOSED_EMOJI);
+    } else {
+      await setReaction(message, LOCK_EMOJI);
+    }
   } else if (seatsLeft !== null && seatsLeft >= 0 && seatsLeft <= 9) {
     await setReaction(message, NUMBER_EMOJIS[seatsLeft]);
   }

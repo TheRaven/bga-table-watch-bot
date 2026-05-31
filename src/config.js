@@ -4,6 +4,7 @@ export const MAX_FAIL_COUNT = parseInt(process.env.MAX_FAIL_COUNT || '3', 10);
 
 export const NUMBER_EMOJIS = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 export const LOCK_EMOJI = '🔒';
+export const CLOSED_EMOJI = '❌';
 export const LOADING_EMOJI = '⏳';
 
 export const BGA_LINK_RE = /https?:\/\/bga\.li\/t\/(\d+)|https?:\/\/\w+\.boardgamearena\.com\/gamepanel\?[^\s]*table=(\d+)/;
