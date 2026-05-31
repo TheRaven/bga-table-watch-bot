@@ -118,6 +118,7 @@ const PORT = process.env.PORT || 80;
 
 createServer((req, res) => {
   if (req.url === '/health') {
+    console.log(`Health check from ${req.socket.remoteAddress}`);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
   } else {
