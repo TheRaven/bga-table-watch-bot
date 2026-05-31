@@ -51,16 +51,20 @@ client.once('clientReady', async () => {
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName === 'bga-watch') {
-    setWatchedChannel.run(interaction.guildId, interaction.channelId);
-    await interaction.reply(`Now watching this channel for BGA links.`);
-    console.log(`Watching channel ${interaction.channelId} in guild ${interaction.guildId}`);
-  }
+  try {
+    if (interaction.commandName === 'bga-watch') {
+      setWatchedChannel.run(interaction.guildId, interaction.channelId);
+      await interaction.reply(`Now watching this channel for BGA links.`);
+      console.log(`Watching channel ${interaction.channelId} in guild ${interaction.guildId}`);
+    }
 
-  if (interaction.commandName === 'bga-unwatch') {
-    removeWatchedChannel.run(interaction.guildId);
-    await interaction.reply(`Stopped watching for BGA links in this server.`);
-    console.log(`Unwatched guild ${interaction.guildId}`);
+    if (interaction.commandName === 'bga-unwatch') {
+      removeWatchedChannel.run(interaction.guildId);
+      await interaction.reply(`Stopped watching for BGA links in this server.`);
+      console.log(`Unwatched guild ${interaction.guildId}`);
+    }
+  } catch (err) {
+    console.error('Error handling interaction:', err.message);
   }
 });
 
