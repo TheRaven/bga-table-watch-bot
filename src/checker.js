@@ -1,28 +1,7 @@
 import { NUMBER_EMOJIS, LOCK_EMOJI, CLOSED_EMOJI, MAX_FAIL_COUNT } from './config.js';
 import { getTablesByMessageId, getActiveTables, deleteTable, incrementFailCount, resetFailCount, getFailCount, countByMessageId, deleteByMessageId } from './db.js';
 import { fetchTableInfo, getSeatsInfo } from './bga.js';
-
-async function clearBotReactions(message, botUserId) {
-  try {
-    const reactions = message.reactions.cache;
-    for (const [, reaction] of reactions) {
-      const users = await reaction.users.fetch();
-      if (users.has(botUserId)) {
-        await reaction.users.remove(botUserId);
-      }
-    }
-  } catch (err) {
-    console.error('Error clearing reactions:', err.message);
-  }
-}
-
-async function setReaction(message, emoji) {
-  try {
-    await message.react(emoji);
-  } catch (err) {
-    console.error(`Error setting reaction ${emoji}:`, err.message);
-  }
-}
+import { clearBotReactions, setReaction } from './discord.js';
 
 export async function checkTablesForMessage(message, botUserId) {
   const rows = getTablesByMessageId.all(message.id);

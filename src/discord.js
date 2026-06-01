@@ -4,6 +4,30 @@ import { setWatchedChannel, getWatchedChannel, removeWatchedChannel, insertTable
 import { extractTableId } from './bga.js';
 import { checkTablesForMessage, checkAllTables } from './checker.js';
 
+// --- Reaction helpers ---
+
+export async function clearBotReactions(message, botUserId) {
+  try {
+    const reactions = message.reactions.cache;
+    for (const [, reaction] of reactions) {
+      const users = await reaction.users.fetch();
+      if (users.has(botUserId)) {
+        await reaction.users.remove(botUserId);
+      }
+    }
+  } catch (err) {
+    console.error('Error clearing reactions:', err.message);
+  }
+}
+
+export async function setReaction(message, emoji) {
+  try {
+    await message.react(emoji);
+  } catch (err) {
+    console.error(`Error setting reaction ${emoji}:`, err.message);
+  }
+}
+
 // --- Slash commands ---
 
 const commands = [
