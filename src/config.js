@@ -7,7 +7,7 @@ export const LOCK_EMOJI = '🔒';
 export const CLOSED_EMOJI = '❌';
 export const LOADING_EMOJI = '⏳';
 
-export const BGA_LINK_RE = /https?:\/\/bga\.li\/t\/(\d+)|https?:\/\/\w+\.boardgamearena\.com\/gamepanel\?[^\s]*table=(\d+)/;
+export const BGA_LINK_RE = /https?:\/\/bga\.li\/t\/(\d+)|https?:\/\/(?:\w+\.)?boardgamearena\.com\/(?:gamepanel|table)\?[^\s]*table=(\d+)/;
 
 export const BGA_ORIGIN = 'https://en.boardgamearena.com';
 export const BGA_TABLE_URL = `${BGA_ORIGIN}/table`;
