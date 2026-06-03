@@ -21,6 +21,8 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     last_checked_at TEXT,
     fail_count INTEGER DEFAULT 0,
+    reminder_count INTEGER DEFAULT 0,
+    last_reminded_at TEXT,
     UNIQUE(message_id, bga_url)
   )
 `);
@@ -73,4 +75,8 @@ export const getFailCount = db.prepare(`
 
 export const countByMessageId = db.prepare(`
   SELECT COUNT(*) as count FROM tracked_tables WHERE message_id = ?
+`);
+
+export const markReminded = db.prepare(`
+  UPDATE tracked_tables SET reminder_count = reminder_count + 1, last_reminded_at = datetime('now') WHERE id = ?
 `);

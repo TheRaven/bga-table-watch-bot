@@ -28,6 +28,17 @@ export async function setReaction(message, emoji) {
   }
 }
 
+export async function sendReminder(message, seatsLeft, bgaUrl) {
+  try {
+    await message.reply({
+      content: `This table still has ${seatsLeft} seat${seatsLeft !== 1 ? 's' : ''} available! ${bgaUrl}`,
+      allowedMentions: { repliedUser: false },
+    });
+  } catch (err) {
+    console.error('Error sending reminder:', err.message);
+  }
+}
+
 // --- Slash commands ---
 
 const commands = [

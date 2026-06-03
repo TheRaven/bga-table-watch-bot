@@ -1,7 +1,7 @@
-import { NUMBER_EMOJIS, LOCK_EMOJI, CLOSED_EMOJI, MAX_FAIL_COUNT } from './config.js';
-import { getTablesByMessageId, getActiveTables, deleteTable, incrementFailCount, resetFailCount, getFailCount, countByMessageId, deleteByMessageId } from './db.js';
+import { NUMBER_EMOJIS, LOCK_EMOJI, CLOSED_EMOJI, MAX_FAIL_COUNT, REMINDER_SCHEDULE_MINUTES } from './config.js';
+import { getTablesByMessageId, getActiveTables, deleteTable, incrementFailCount, resetFailCount, getFailCount, countByMessageId, deleteByMessageId, markReminded } from './db.js';
 import { fetchTableInfo, getSeatsInfo } from './bga.js';
-import { clearBotReactions, setReaction } from './discord.js';
+import { clearBotReactions, setReaction, sendReminder } from './discord.js';
 
 export async function checkTablesForMessage(message, botUserId) {
   const rows = getTablesByMessageId.all(message.id);
@@ -29,6 +29,21 @@ export async function checkTablesForMessage(message, botUserId) {
         resetFailCount.run(row.id);
         seatsLeft = info.seatsLeft;
         console.log(`Table ${row.table_id}: ${info.seatsLeft} seats left`);
+
+        // Send reminder on schedule: 45min, 1h, 2h, 4h, 8h then stop
+        if (row.reminder_count < REMINDER_SCHEDULE_MINUTES.length) {
+          const delay = REMINDER_SCHEDULE_MINUTES[row.reminder_count];
+          const sinceTime = row.last_reminded_at
+            ? new Date(row.last_reminded_at + 'Z')
+            : new Date(row.created_at + 'Z');
+          const minutesElapsed = (Date.now() - sinceTime.getTime()) / 60000;
+
+          if (minutesElapsed >= delay) {
+            await sendReminder(message, info.seatsLeft, row.bga_url);
+            markReminded.run(row.id);
+            console.log(`Table ${row.table_id}: reminder #${row.reminder_count + 1} sent`);
+          }
+        }
       }
     } catch (err) {
       console.error(`Error checking table ${row.table_id}:`, err.message);
